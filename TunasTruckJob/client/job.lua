@@ -92,7 +92,7 @@ end)
 function OpenJobMenu()
     if lsB then 
         elements = {
-            {label = 'Local Delivery', value = 'option_0'},
+            {label = 'Yacht Delivery', value = 'option_0'},
             {label = 'Power Grid Delivery', value = 'option_1'},
             {label = 'Luxury Auto Delivery', value = 'option_5'},
             {label = 'Cross-County Delivery', value = 'option_2'},
