@@ -3,7 +3,7 @@ resource_manifest_version '77731fab-63ca-442c-a67b-abc70f28dfa5'
 games { 'rdr3', 'gta5' }
 
 author 'Tuna Terps'
-description 'Simple ESX Trucking Job - Compatible with TunasPowerJob'
+description 'Simple ESX Trucking Script - Compatible with TunasPowerJob'
 version '1.0.0'
 
 client_scripts {
