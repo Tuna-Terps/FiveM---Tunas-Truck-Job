@@ -4,7 +4,7 @@ games { 'rdr3', 'gta5' }
 
 author 'Tuna Terps'
 description 'Simple ESX Trucking Job - Compatible with TunasPowerJob'
-version '1.0.0'
+version '1.0.1'
 
 client_scripts {
     'client/utils.lua',
