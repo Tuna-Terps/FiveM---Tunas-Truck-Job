@@ -1,5 +1,5 @@
 # FiveM---Tunas-Truck-Job
-Point A to B, sometimes C ... A simple ESX trucking script
+Point A to B to C ... sometimes D ... A simple ESX trucking script
 
 TO GET STARTED 
 1.) Simply upload the TunasTruckJob to your /resource directory
