@@ -1,6 +1,6 @@
 hasPowerJob = true -- Poweer Grid compatibility enabled by default, Can be found here --> https://forum.cfx.re/t/tunas-power-job-esx-working-power-grid-free-release/3820220
 gridAdd = 200 -- amount you want added to power grid for completing a "Power Grid Delivery" job
-debug = false -- test spawn coordinates of peds
+debug = false -- test spawn coordinates of peds; However I wouldnt reccomend changing coordinates 
 -- for payout, see /server/payment.lua
 --[[
 ___________                ___________                        
@@ -207,10 +207,14 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
             Citizen.Wait(0)
         end
         if isP then
-            print('ped detected, opting for either emote, or standby ...')
-            local ped = ESX.Game.GetClosestPed(nCoords)
+	    local ped = ESX.Game.GetClosestPed(nCoords)
+	    if deBug then
+	    	print('ped detected, opting for either emote, or standby ...')
+	    end
             if isP and pAnim then
-                print('beginning ped anim ..')
+		if debug then
+	    		print('beginning ped anim ..')
+	    	end
                 Citizen.Wait(1)
                 TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", 0, true)
                 Citizen.Wait(10000)
@@ -322,7 +326,7 @@ function DeliveryAnim()
             end
             return
 		else 
-			print('youre already on the clock foh ...')
+		print('youre already on the clock foh ...')
         end
     end)
 end
