@@ -93,12 +93,14 @@ function OpenJobMenu()
             {label = 'Power Grid Delivery', value = 'option_1'},
             {label = 'Luxury Auto Delivery', value = 'option_5'},
             {label = 'Cross-County Delivery', value = 'option_2'},
+            {label = 'Exit Menu', value = 'exit'},
         }
     else
         elements = {
             {label = 'Army Depot Delivery', value = 'option_6'},
             {label = 'Power Grid Delivery', value = 'option_3'},
             {label = 'Cross-County Delivery', value = 'option_4'},
+            {label = 'Exit Menu', value = 'exit'},
         }
     end
 	ESX.UI.Menu.CloseAll()
@@ -181,7 +183,7 @@ function OpenJobMenu()
 		        print('~r~error: ~w~already on the clock ....')
                 return
             end
-        else
+        elseif data.current.value == 'exit' then
             menu.close()     
         end
 	end)
@@ -290,7 +292,7 @@ function DeliveryAnim()
                 TriggerEvent('TunasTruckJob:ped',c, true, true, false)
                 Citizen.Wait(1000)
                 Job7()
-                TriggerServerEvent("TunasTruckJob:pay")
+            --    TriggerServerEvent("TunasTruckJob:pay")
                 return
             end
             if luxReturn then
@@ -299,7 +301,7 @@ function DeliveryAnim()
                 TriggerEvent('TunasTruckJob:ped',c, true, true, false)
                 Citizen.Wait(1000)
                 FinishJob()
-            --    TriggerServerEvent("TunasTruckJob:pay")
+                TriggerServerEvent("TunasTruckJob:pay")
             end
             if armyJob then
                 local c = vector3(-322.58,6095.0,31.47)-vector3(5,9,0)
