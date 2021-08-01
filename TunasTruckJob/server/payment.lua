@@ -13,9 +13,9 @@ AddEventHandler('TunasTruckJob:pay', function()
             xPlayer.addMoney(randomMoney)
             local cash = xPlayer.getMoney()
 		if randomMoney > 501 then
-			print(source.identifier .. " may be cheating ....")
+			print(source .. " may be cheating ....")
 			return
-        end
+        	end
             TriggerClientEvent('banking:updateCash', _source, cash)
             TriggerClientEvent('esx:showNotification', _source,'You were paid $ '.. randomMoney)
         end
