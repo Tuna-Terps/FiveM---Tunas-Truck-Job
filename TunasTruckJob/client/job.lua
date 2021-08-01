@@ -1,6 +1,6 @@
 hasPowerJob = true -- Poweer Grid compatibility enabled by default, Can be found here --> https://forum.cfx.re/t/tunas-power-job-esx-working-power-grid-free-release/3820220
 gridAdd = 200 -- amount you want added to power grid for completing a "Power Grid Delivery" job
-debug = false -- test spawn coordinates of peds; However I wouldnt recommend changing coordinates 
+debug = false -- test spawn coordinates of peds
 -- for payout, see /server/payment.lua
 --[[
 ___________                ___________                        
@@ -53,7 +53,6 @@ Citizen.CreateThread(function()
         local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, -176.74, -2581.24, 5.1, false)
         local dist2 = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 120.39, 6625.51, 31.69, false)
         if jobMenu ~= nil then
-            --dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 537.77, -1651.43, 29.26, false)
             while jobMenu ~= nil and dist > 1.5 do jobMenu = nil Citizen.Wait(1) end
             if jobMenu == nil then ESX.UI.Menu.CloseAll() end
         else
@@ -61,7 +60,6 @@ Citizen.CreateThread(function()
                 s = false
                 if dist < 13 then
                     DynaMarker(27,-176.74, -2581.24, 5.0, 0.0, 0.0, 600, 100, true)
-                   -- DrawMarker(27, -176.74, -2581.24, 5.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 600, 100, false, true, 2, false, false, false, false)
                     if dist < 1.5 then
                         DrawText3Ds(-176.74, -2581.24, 6.1, "~r~[~g~E~r~]".." ~w~Open Job Menu")
                         if IsControlJustPressed(0, 38) then
@@ -73,7 +71,6 @@ Citizen.CreateThread(function()
             elseif dist2 < 18 then
                 s = false
                 if dist2 < 13 then
-                    --DrawMarker(27, 120.39, 6625.51, 30.97, 0.0, 0.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, 1.0, 0, 0, 600, 100, false, true, 2, false, false, false, false)
                     DynaMarker(27, 120.39, 6625.51, 30.97, 0.0, 0.0, 600, 100, true)
                     if dist2 < 1.5 then
                         DrawText3Ds(120.39, 6625.51, 31.95, "~r~[~g~E~r~]".." ~w~Open Job Menu")
@@ -183,7 +180,9 @@ function OpenJobMenu()
             else
 		        print('~r~error: ~w~already on the clock ....')
                 return
-            end     
+            end
+        else
+            menu.close()     
         end
 	end)
 end
@@ -207,14 +206,10 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
             Citizen.Wait(0)
         end
         if isP then
-	    local ped = ESX.Game.GetClosestPed(nCoords)
-	    if debug then
-	    	print('ped detected, opting for either emote, or standby ...')
-	    end
+            print('ped detected, opting for either emote, or standby ...')
+            local ped = ESX.Game.GetClosestPed(nCoords)
             if isP and pAnim then
-		if debug then
-	    		print('beginning ped anim ..')
-	    	end
+                print('beginning ped anim ..')
                 Citizen.Wait(1)
                 TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", 0, true)
                 Citizen.Wait(10000)
@@ -304,7 +299,7 @@ function DeliveryAnim()
                 TriggerEvent('TunasTruckJob:ped',c, true, true, false)
                 Citizen.Wait(1000)
                 FinishJob()
-                TriggerServerEvent("TunasTruckJob:pay")
+            --    TriggerServerEvent("TunasTruckJob:pay")
             end
             if armyJob then
                 local c = vector3(-322.58,6095.0,31.47)-vector3(5,9,0)
@@ -326,7 +321,7 @@ function DeliveryAnim()
             end
             return
 		else 
-		print('youre already on the clock foh ...')
+			print('youre already on the clock foh ...')
         end
     end)
 end
@@ -718,6 +713,7 @@ function startJob5()
                             RemoveBlip(mB)
                             Job5()
                             Citizen.Wait(10000)
+                            ESX.Game.DeleteVehicle(veh)
                             ESX.Game.DeleteVehicle(veh2)
                             return
                         end
