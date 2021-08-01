@@ -208,7 +208,7 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
         end
         if isP then
 	    local ped = ESX.Game.GetClosestPed(nCoords)
-	    if deBug then
+	    if debug then
 	    	print('ped detected, opting for either emote, or standby ...')
 	    end
             if isP and pAnim then
