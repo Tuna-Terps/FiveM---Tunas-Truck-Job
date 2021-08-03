@@ -297,6 +297,7 @@ function DeliveryAnim()
                 ccJob = false
                 TriggerEvent('TunasTruckJob:ped',c, true, true, false)
                 TriggerServerEvent("TunasTruckJob:pay")
+                onJob = false
                 return
             end
             if ccJob2 then
@@ -304,6 +305,7 @@ function DeliveryAnim()
                 ccJob2 = false
                 TriggerEvent('TunasTruckJob:ped',c, true, true, false)
                 TriggerServerEvent("TunasTruckJob:pay")
+                onJob = false
                 return
             end
             if luxJob then
@@ -767,7 +769,6 @@ function startJob5()
                     local trDist = GetDistanceBetweenCoords(tr, sC2, false)
                     if tDist < 60  and trDist > 5 then
                         wait = 5
-                        r = 250 ;  g = 0;  b = 0; a = 200;
                         DynaMarker(1, sC2.x, sC2.y, sC2.z-1.0, 250, 0, 0, 200, false)    
                     end
                     if trDist < 5 then
