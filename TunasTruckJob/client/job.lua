@@ -1,6 +1,6 @@
 hasPowerJob = true -- Poweer Grid compatibility enabled by default, Can be found here --> https://forum.cfx.re/t/tunas-power-job-esx-working-power-grid-free-release/3820220
 gridAdd = 200 -- amount you want added to power grid for completing a "Power Grid Delivery" job
-debug = false -- test spawn coordinates of peds
+debug = true -- test spawn coordinates of peds; Youll need to change job site coords in multiple places, so proceed with caution if you do
 -- for payout, see /server/payment.lua
 --[[
 ___________                ___________                        
@@ -27,6 +27,10 @@ pCoords = nil
 xlJob = false
 lsB = false
 jobMenu = nil
+sC3 = nil
+
+bcJob3 = false
+j1 = false;j2 = false;j3 = false;j4 = false;j5 = false;j6 = false;j8 = false;j10 = false;
 
 -- ------------------------------------- thread/loops ----------------------------------------
 Citizen.CreateThread(function()
@@ -97,8 +101,9 @@ function OpenJobMenu()
         }
     else
         elements = {
-            {label = 'Army Depot Delivery', value = 'option_6'},
+            {label = 'Lumber Yard Delivery', value = 'option_7'},
             {label = 'Power Grid Delivery', value = 'option_3'},
+            {label = 'Army Depot Delivery', value = 'option_6'},
             {label = 'Cross-County Delivery', value = 'option_4'},
             {label = 'Exit Menu', value = 'exit'},
         }
@@ -183,6 +188,16 @@ function OpenJobMenu()
 		        print('~r~error: ~w~already on the clock ....')
                 return
             end
+        elseif data.current.value == 'option_7' then
+            menu.close()
+            ChangeClothes()
+            if onJob == false then
+                onJob = true
+                startJob10()
+            else
+		        print('~r~error: ~w~already on the clock ....')
+                return
+            end
         elseif data.current.value == 'exit' then
             menu.close()     
         end
@@ -197,7 +212,7 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
     else
         hash = 's_m_y_construct_02'
     end
-    nCoords = pCoords - vector3(5,9,0)
+    nCoords = pCoords - vector3(5,9,0) -- this is the offset of the ped from center of delivery site; If this coord cant be found ped will not delete
     Citizen.CreateThread(function()
         if debug then
             print('spawning ' .. hash .. ' at ' .. nCoords)
@@ -208,14 +223,18 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
             Citizen.Wait(0)
         end
         if isP then
-            print('ped detected, opting for either emote, or standby ...')
+            if debug then
+                print('ped detected, opting for either emote, or standby ...')
+            end
             local ped = ESX.Game.GetClosestPed(nCoords)
             if isP and pAnim then
-                print('beginning ped anim ..')
+                if debug then
+                    print('beginning ped anim ..')
+                end
                 Citizen.Wait(1)
                 TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", 0, true)
                 Citizen.Wait(10000)
-                ClearPedTasksImmediately(ped)
+                SetEntityAsNoLongerNeeded(ped)
                 DeletePed(ped)
                 return
             else
@@ -223,7 +242,9 @@ AddEventHandler('TunasTruckJob:ped', function(pCoords, isP, pAnim, cBool)
             end
 
         else
-            print('creating ped ....')
+            if debug then
+                print('creating ped ....')
+            end
             CreatePed(1,hash,nCoords, true, false)
             return 
         end
@@ -244,8 +265,8 @@ function DeliveryAnim()
         if onJob then
             ClearPedTasksImmediately(PlayerPedId())
             TriggerServerEvent("TunasTruckJob:pay")
-            TriggerEvent('esx:showNotification', player,'Job Complete')
-            onJob = false
+            TriggerEvent('esx:showNotification','Job Complete')
+            --onJob = false
             if npcJob then
                 local c = vector3(-757.09, -1487.09, 5.14)-vector3(5,9,0)
                 npcJob = false
@@ -302,6 +323,7 @@ function DeliveryAnim()
                 Citizen.Wait(1000)
                 FinishJob()
                 TriggerServerEvent("TunasTruckJob:pay")
+                return
             end
             if armyJob then
                 local c = vector3(-322.58,6095.0,31.47)-vector3(5,9,0)
@@ -320,6 +342,16 @@ function DeliveryAnim()
                 Citizen.Wait(1000)
                 FinishJob()
                 TriggerServerEvent("TunasTruckJob:pay")
+                return
+            end
+            if bcJob3 then
+                local c = vector3(-570.6,5265.1,70.44)-vector3(5,9,0)
+                bcJob3 = false
+                bcJob = true
+                TriggerEvent('TunasTruckJob:ped',c, true, true, true)
+                Citizen.Wait(1000)
+                FinishJob()
+                return
             end
             return
 		else 
@@ -328,7 +360,6 @@ function DeliveryAnim()
     end)
 end
 
-sC3 = nil
 
 function FinishJob()
     if bcJob then
@@ -349,20 +380,18 @@ function FinishJob()
         while not n1 do
             Citizen.Wait(wait)
             local tDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, sC3, false)
-            if tDist < 30 and tDist > 5 then
+            if tDist < 40 and tDist > 10 then
                 wait = 5
                 local p = PlayerPedId()
                 local v = GetVehiclePedIsIn(p)
                 DynaMarker(1, sC3.x, sC3.y, sC3.z-1.0,250, 0, 0, 200, false)    
-
-                --DrawMarker(29, sC3, 0.0, 0.0, 0.0, 0, 0.0, 0.0, 2.0, 2.0, 1.0, 0, 120, 0, 200, false, true, 2, false, false, false, false)
            end
-           if tDist < 5 then
-                DynaMarker(1, sC3.x, sC3.y, sC3.z-1.0,0, 600, 0, 200, false)    
+           if tDist <= 10 then
+                onJob = false
                 wait = 5
+                DynaMarker(1, sC3.x, sC3.y, sC3.z-1.0,0, 600, 0, 200, false)    
                 local p = PlayerPedId()
                 local v = GetVehiclePedIsIn(p)
-                n1 = true
                 Citizen.Wait(1000)
                 SetBlipRoute(mB3, false)
                 RemoveBlip(mB3)
@@ -370,11 +399,38 @@ function FinishJob()
                 ESX.Game.DeleteVehicle(v)
                 TriggerServerEvent('TunasTruckJob:pay')
                 Citizen.Wait(1000)
+                n1 = true
                 return
             end   
         end
     end)
 end
+-- ====================================== cancel job ===============================================
+-- Credits to Soubisan on the cfx forums <3 -- this will clear routes + some blips/ will not despawn peds 
+RegisterNetEvent('TunasTruckJob_gw:stoptruck')
+AddEventHandler('TunasTruckJob_gw:stoptruck', function()
+	local p = PlayerPedId()
+    local v = GetVehiclePedIsIn(p)
+	if onJob then 
+        onjob = false;
+        ClearAllBlipRoutes()
+        RemoveBlip(mB)
+        RemoveBlip(mB3)
+        ESX.Game.DeleteVehicle(v)
+        sC3 = nil;
+        onJob = false;
+        ccJob = false;ccJob2 = false;
+        npcJob = false;bcJob = false;luxJob=false;luxReturn=false;xlJob = false;
+        pAnim = nil;pCoords = nil;lsB=false;
+        armyJob = false; armyReturn = false; bcJob = false; bcJob2 = false; bcJob3 = false;
+        j1 = false;j2 = false;j3 = false;j4 = false;j5 = false;j6 = false;j8 = false;j10 = false;
+        jobMenu = nil;
+    else
+        TriggerEvent('esx:showNotification','You`re not on the job !')
+  end 
+end)
+-- Credits to Soubisan on the cfx forums <3 -- this will clear routes + some blips/ will not despawn peds 
+-- ====================================== cancel job ===============================================
 
 
 -- ======================================= job 1 (s) ===============================================
@@ -435,7 +491,8 @@ function Job1()
     local jC = vector3(-757.09, -1487.09, 5.14)
     local nC = jC + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC, false, false, false)
-    while true do
+    j1 = true
+    while j1 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC.x-5,jC.y-9, jC.z, false)
         if uDist < 20 then
@@ -445,6 +502,7 @@ function Job1()
                 ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ to speak with the foreman", true, true, 5000)
                 if IsControlJustPressed(0,38) then
                     DeliveryAnim()
+                    j1 = false
                     return
                 end
             end
@@ -508,7 +566,8 @@ function Job2()
     local jC2 = vector3(2838.13,1525.58,24.58)
     local nC = jC2 + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC2, false, false, false)
-    while true do
+    j2 = true
+    while j2 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC2.x-5,jC2.y-9, jC2.z, false)
         if uDist < 20 then
@@ -519,6 +578,7 @@ function Job2()
                 if IsControlJustPressed(0,38) then
                     xlJob = true
                     DeliveryAnim()
+                    j2 = false
                     return
                 end
             end
@@ -581,7 +641,8 @@ function Job3()
     local jC2 = vector3(152.56,6623.85,31.81)
     local nC = jC2 + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC2, false, false, false)
-    while true do
+    j3 = true
+    while j3 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC2.x-5,jC2.y-9, jC2.z, false)
         if uDist < 20 then
@@ -592,6 +653,7 @@ function Job3()
                 if IsControlJustPressed(0,38) then
                     ccJob = true
                     DeliveryAnim()
+                    j3 = false
                     return
                 end
             end
@@ -654,7 +716,8 @@ function Job4()
     local jC2 = vector3(2838.13,1525.58,24.58)
     local nC = jC2 + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC2, false, false, false)
-    while true do
+    j4 = true
+    while j4 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC2.x-5,jC2.y-9, jC2.z, false)
         if uDist < 20 then
@@ -665,6 +728,7 @@ function Job4()
                 if IsControlJustPressed(0,38) then
                     bcJob = true
                     DeliveryAnim()
+                    j4 = false
                     return
                 end
             end
@@ -730,7 +794,8 @@ function Job5()
     local jC2 = vector3(-150.98, -2567.15, 6.0)
     local nC = jC2 + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC2, false, false, false)
-    while true do
+    j5 = true
+    while j5 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC2.x-5,jC2.y-9, jC2.z, false)
         if uDist < 20 then
@@ -741,6 +806,7 @@ function Job5()
                 if IsControlJustPressed(0,38) then
                     ccJob2 = true
                     DeliveryAnim()
+                    j5 = false
                     return
                 end
             end
@@ -845,7 +911,8 @@ function Job6()
     local jC = vector3(529.6,-3022.47,6.03)
     local nC = jC + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC, false, false, false)
-    while true do
+    j6 = true
+    while j6 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC.x-5,jC.y-9, jC.z, false)
         if uDist < 20 then
@@ -856,6 +923,7 @@ function Job6()
                 if IsControlJustPressed(0,38) then
                     DeliveryAnim()
                     luxJob = true
+                    j6 = false
                     return
                 end
             end
@@ -961,7 +1029,8 @@ function Job8()
     local jC = vector3(-320.23,6099.54,31.47)
     local nC = jC + vector3(0,0,1.5) - vector3(5,9,0)
     TriggerEvent('TunasTruckJob:ped', jC, false, false, false)
-    while true do
+    j8 = true
+    while j8 do
         Citizen.Wait(5)
         local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, nC, false)
         if uDist < 20 then
@@ -972,6 +1041,87 @@ function Job8()
                 if IsControlJustPressed(0,38) then
                     DeliveryAnim()
                     armyJob = true
+                    j8 = false
+                    return
+                end
+            end
+        end
+    end  
+end
+
+-- ========================================= logging ======================================
+
+
+function startJob10()
+    local p = PlayerPedId()
+    local vC1 = vector3(135.39,6620.55,31.76) -- truck
+    local vC2 = vector3(144.59,6621.6,31.56) -- trailer
+    local h = 128.13
+    local sC2 = vector3(-570.6,5265.1,70.44)
+    local n2 = false
+    ESX.Game.SpawnVehicle("phantom", vC1, h , function(veh)        
+	    Citizen.Wait(1000)
+        SetVehicleLivery(veh, 4)
+        SetPedIntoVehicle(p, veh, -1)
+        print(veh)
+        mB = AddBlipForCoord(sC2)
+        SetBlipRoute(mB, true)
+        SetBlipRouteColour(mB, 57)
+        SetBlipColour(mB, 57)
+        ESX.Game.SpawnVehicle("trailerlogs", vC2, h , function(veh2)
+            AttachVehicleToTrailer(veh, veh2, 1.1)
+            Citizen.CreateThread(function()
+                local wait = 100
+                while not n2 do
+                    Citizen.Wait(wait)
+                    local tDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, sC2, false)
+                    local tr = GetEntityCoords(veh2)
+                    local trDist = GetDistanceBetweenCoords(tr, sC2, false)
+                    if tDist < 60  and trDist > 5 then
+                        wait = 5
+                        r = 250 ;  g = 0;  b = 0; a = 200;
+                        DynaMarker(1, sC2.x, sC2.y, sC2.z-1.0, 250, 0, 0, 200, false)    
+                    end
+                    if trDist < 5 then
+                        local trH = GetEntityHeading(veh2)
+                        wait = 5
+                        DynaMarker(1, sC2.x, sC2.y, sC2.z-1.0, 0, 600, 0, 100, false)   
+                        if trDist < 2 then
+                            print('ok ...')
+                            SetBlipRoute(mB, false)
+                            RemoveBlip(mB)
+                            Job10()
+                            Citizen.Wait(10000)
+                            ESX.Game.DeleteVehicle(veh2)
+                            ESX.Game.SpawnVehicle("trflat", tr, trH , function(veh3)
+                                AttachVehicleToTrailer(veh, veh3, 1.1)
+                            end)
+                            return
+                        end
+                    end   
+                end
+            end)
+        end)
+    end)
+end
+
+function Job10()
+    j10 = true
+    local jC2 = vector3(-570.6,5265.1,70.44)
+    local nC = jC2 + vector3(0,0,1.5) - vector3(5,9,0)
+    TriggerEvent('TunasTruckJob:ped', jC2, false, false, false)
+    while j10 do
+        Citizen.Wait(5)
+        local uDist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, jC2.x-5,jC2.y-9, jC2.z, false)
+        if uDist < 20 then
+            ESX.ShowHelpNotification("Sign off on the order !", true, true, 5000)
+            DrawMarker(29, nC, 0.0, 0.0, 0.0, 0, 0.0, 0.0, 2.0, 2.0, 1.0, 0, 120, 0, 200, false, true, 2, false, false, false, false)
+            if uDist < 3 then
+                ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ to speak with the foreman", true, true, 5000)
+                if IsControlJustPressed(0,38) then
+                    bcJob3 = true
+                    DeliveryAnim()
+                    j10 = false
                     return
                 end
             end
