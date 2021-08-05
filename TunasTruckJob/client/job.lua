@@ -1,4 +1,4 @@
-hasPowerJob = true -- Poweer Grid compatibility enabled by default, Can be found here --> https://forum.cfx.re/t/tunas-power-job-esx-working-power-grid-free-release/3820220
+hasPowerJob = true -- Power Grid compatibility enabled by default, Can be found here --> https://forum.cfx.re/t/tunas-power-job-esx-working-power-grid-free-release/3820220
 gridAdd = 200 -- amount you want added to power grid for completing a "Power Grid Delivery" job
 debug = true -- test spawn coordinates of peds; Youll need to change job site coords in multiple places, so proceed with caution if you do
 -- for payout, see /server/payment.lua
